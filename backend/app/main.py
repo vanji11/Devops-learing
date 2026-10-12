@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 from .database import Base, SessionLocal, engine
 from .models import WeightRecord, WorkoutRecord
 
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="GymTrack API",

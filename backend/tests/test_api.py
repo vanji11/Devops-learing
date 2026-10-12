@@ -1,18 +1,11 @@
-from fastapi.testclient import TestClient
-
-from app.main import app
-
-client = TestClient(app)
-
-
-def test_health_endpoint():
+def test_health_endpoint(client):
     response = client.get("/health")
 
     assert response.status_code == 200
     assert response.json() == {"status": "healthy"}
 
 
-def test_add_and_get_weight():
+def test_add_and_get_weight(client):
     payload = {
         "entry_date": "2026-10-13",
         "weight_kg": 66.5,
@@ -21,7 +14,7 @@ def test_add_and_get_weight():
     response = client.post("/weights", json=payload)
 
     assert response.status_code == 201
-    assert response.json()["entry"]["weight_kg"] == "66.50" or response.json()["entry"]["weight_kg"] == 66.5
+    assert float(response.json()["entry"]["weight_kg"]) == 66.5
 
     response = client.get("/weights")
 
@@ -32,7 +25,7 @@ def test_add_and_get_weight():
     )
 
 
-def test_reject_invalid_weight():
+def test_reject_invalid_weight(client):
     payload = {
         "entry_date": "2026-10-13",
         "weight_kg": -5,
@@ -41,3 +34,4 @@ def test_reject_invalid_weight():
     response = client.post("/weights", json=payload)
 
     assert response.status_code == 422
+
