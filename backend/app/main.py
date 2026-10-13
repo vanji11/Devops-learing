@@ -80,6 +80,32 @@ def get_workouts(db: Session = Depends(get_db)):
     ).all()
 
 
+class WorkoutStatusUpdate(BaseModel):
+    status: Literal["planned", "completed", "missed"]
+
+
+@app.patch("/workouts/{workout_id}/status")
+def update_workout_status(
+    workout_id: int,
+    update: WorkoutStatusUpdate,
+    db: Session = Depends(get_db),
+):
+    workout = db.get(WorkoutRecord, workout_id)
+
+    if workout is None:
+        raise HTTPException(status_code=404, detail="Workout not found")
+
+    workout.status = update.status
+    db.commit()
+    db.refresh(workout)
+
+    return {
+        "message": "Workout status updated",
+        "entry": workout,
+    }
+
+
+
 @app.get("/dashboard")
 def dashboard(db: Session = Depends(get_db)):
     latest_weight = db.scalar(
